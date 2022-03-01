@@ -64,6 +64,14 @@ export async function getTop10Genres() {
   return await NETWORK_HELPER.GET(CONSTANTS.top10GenresUrl)
 }
 
+export async function getTracksPopularityInsight() {
+  return await NETWORK_HELPER.GET(CONSTANTS.tracksPopularityInsightUrl)
+}
+
+
+
+
+
 
 
 

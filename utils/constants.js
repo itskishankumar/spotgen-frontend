@@ -4,28 +4,24 @@ export const LINE_CHART = 'LINE'
 export const PIE_CHART = 'PIE'
 
 // internal routes
-
 export const searchPage = '/search'
 export const insightsPage = '/insights'
 export const artistPage = '/artist'
 export const albumPage = '/album'
 
-// external apis
-
+// external apis (to be changed if hosting backend)
 export const searchUrl = 'http://localhost:5000/search/'
 export const artistDataUrl = 'http://localhost:5000/artists/findById/'
 export const albumDataUrl = 'http://localhost:5000/albums/findById/'
-
-// insights
 export const audioTrendsOverTimeUrl = 'http://localhost:5000/insights/getAudioTrendsOverTime'
 export const artistLongestReleaseSpansUrl = 'http://localhost:5000/insights/getArtistLongestReleaseSpans'
 export const genresWithMostArtistsUrl = 'http://localhost:5000/insights/getGenresWithMostArtists'
 export const popularArtistsOfGenreUrl = 'http://localhost:5000/insights/getPopularArtistsOfGenre/'
 export const top10GenresUrl = 'http://localhost:5000/insights/getTop10Genres/'
+export const tracksPopularityInsightUrl = 'http://localhost:5000/insights/getTracksPopularityInsight/'
 
 
-// network edge case, empty data etc
-
+// errors and messages
 export const NETWORK_ERROR = 'NETWORK_ERROR'
 export const NETWORK_FAILURE = 'NETWORK_FAILURE'
 export const SEARCH_RETURNED_EMPTY_ERROR = 'SEARCH_RETURNED_EMPTY'

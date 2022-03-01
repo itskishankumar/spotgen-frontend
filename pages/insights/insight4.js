@@ -200,7 +200,5 @@ export default function Insight4({ isDynamic = true }) {
                             : <ChartWrapper type={CONSTANTS.PIE_CHART} data={response.chartData} chartOptions={staticChartOptions} />
             }
         </div >
-
-
     )
 }
