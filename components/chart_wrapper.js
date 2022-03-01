@@ -7,7 +7,7 @@ Chart.register(ChartDataLabels);
 import *  as CONSTANTS from '../utils/constants'
 
 // creating a chart wrapper cause the zoom plugin used here needs a browser window object to register. so will non-ssr load this component
-export default function ChartWrapper({ type, ref, data, chartOptions }) {
+export default function ChartWrapper({ type, data, chartOptions }) {
     return (
         <div className='h-full flex-1 bg-white rounded-3xl p-5'>
             {
@@ -16,7 +16,6 @@ export default function ChartWrapper({ type, ref, data, chartOptions }) {
                         case CONSTANTS.LINE_CHART:
                             return <Line
                                 data={data}
-                                ref={ref}
                                 options={chartOptions}
                             />
                         case CONSTANTS.BAR_CHART:
