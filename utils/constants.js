@@ -10,15 +10,15 @@ export const artistPage = '/artist'
 export const albumPage = '/album'
 
 // external apis (to be changed if hosting backend)
-export const searchUrl = 'http://localhost:5000/search/'
-export const artistDataUrl = 'http://localhost:5000/artists/findById/'
-export const albumDataUrl = 'http://localhost:5000/albums/findById/'
-export const audioTrendsOverTimeUrl = 'http://localhost:5000/insights/getAudioTrendsOverTime'
-export const artistLongestReleaseSpansUrl = 'http://localhost:5000/insights/getArtistLongestReleaseSpans'
-export const genresWithMostArtistsUrl = 'http://localhost:5000/insights/getGenresWithMostArtists'
-export const popularArtistsOfGenreUrl = 'http://localhost:5000/insights/getPopularArtistsOfGenre/'
-export const top10GenresUrl = 'http://localhost:5000/insights/getTop10Genres/'
-export const tracksPopularityInsightUrl = 'http://localhost:5000/insights/getTracksPopularityInsight/'
+export const searchUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/search/`
+export const artistDataUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/artists/findById/`
+export const albumDataUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/albums/findById/`
+export const audioTrendsOverTimeUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getAudioTrendsOverTime`
+export const artistLongestReleaseSpansUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getArtistLongestReleaseSpans`
+export const genresWithMostArtistsUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getGenresWithMostArtists`
+export const popularArtistsOfGenreUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getPopularArtistsOfGenre/`
+export const top10GenresUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getTop10Genres/`
+export const tracksPopularityInsightUrl = `${process.env.NEXT_PUBLIC_SPOTGEN_BACKEND_DOMAIN}/insights/getTracksPopularityInsight/`
 
 
 // errors and messages
