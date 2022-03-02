@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import { getAlbumData } from '../../core/repository'
+import Repository from '../../core/repository'
 import Link from 'next/link'
 import *  as CONSTANTS from '../../utils/constants'
 import TrackCard from '../../components/track_card'
@@ -23,7 +23,7 @@ export default function AlbumPage({ data }) {
     useEffect(() => {
         if (router.isReady) {
             const fetchData = async () => {
-                const { data, error } = await getAlbumData(id)
+                const { data, error } = await Repository.getAlbumData(id)
                 setResponse({
                     data: data,
                     error: error,

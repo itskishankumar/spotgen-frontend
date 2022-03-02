@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { getTracksPopularityInsight } from '../../core/repository'
+import Repository from '../../core/repository'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import LoadingSpinner from '../../components/loading_spinner'
@@ -89,7 +89,7 @@ export default function Insight5({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await getTracksPopularityInsight()
+            const { data, error } = await Repository.getTracksPopularityInsight()
             let years = []
             let artist_popularity = []
             let deviations_from_avg = []

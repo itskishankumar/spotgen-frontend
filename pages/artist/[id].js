@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import { getArtistData } from '../../core/repository'
+import Repository from '../../core/repository'
 import AlbumCard from '../../components/album_card'
 import LoadingSpinner from '../../components/loading_spinner'
 import *  as CONSTANTS from '../../utils/constants'
@@ -20,7 +20,7 @@ export default function ArtistPage() {
     useEffect(() => {
         if (router.isReady) {
             const fetchData = async () => {
-                const { data, error } = await getArtistData(id)
+                const { data, error } = await Repository.getArtistData(id)
                 setResponse({
                     data: data,
                     error: error,

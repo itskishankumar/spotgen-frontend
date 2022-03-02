@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { searchInDb } from '../../core/repository'
+import Repository from '../../core/repository'
 import ArtistCard from '../../components/artist_card'
 import TrackCard from '../../components/track_card'
 import AlbumCard from '../../components/album_card'
@@ -34,7 +34,7 @@ export default function SearchPage() {
       let dataa = []
       let errorr = CONSTANTS.NO_ERROR
       if (searchTerm) {
-        const { data, error } = await searchInDb(searchTerm)
+        const { data, error } = await Repository.searchInDb(searchTerm)
         if (data != null) {
           dataa = data
         }

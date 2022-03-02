@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { getPopularArtistsOfGenre, getTop10Genres } from '../../core/repository'
+import Repository from '../../core/repository'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import Router from 'next/router'
@@ -111,7 +111,7 @@ export default function Insight4({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await getTop10Genres()
+            const { data, error } = await Repository.getTop10Genres()
             if (error != null) {
                 setResponse({
                     error: error,
@@ -126,7 +126,7 @@ export default function Insight4({ isDynamic = true }) {
     }, [])
 
     async function fetchGenreArtists(genreName) {
-        const { data, error } = await getPopularArtistsOfGenre(genreName)
+        const { data, error } = await Repository.getPopularArtistsOfGenre(genreName)
         let namesList = []
         let followersList = []
         let popularityList = []

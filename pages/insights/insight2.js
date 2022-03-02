@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { getArtistLongestReleaseSpans } from '../../core/repository'
+import Repository from '../../core/repository'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import Router from 'next/router'
@@ -121,7 +121,7 @@ export default function Insight2({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await getArtistLongestReleaseSpans()
+            const { data, error } = await Repository.getArtistLongestReleaseSpans()
             let artistsNames = []
             let artistsData = []
             let idList = []

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { getGenresWithMostArtists } from '../../core/repository'
+import Repository from '../../core/repository'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import LoadingSpinner from '../../components/loading_spinner'
@@ -83,7 +83,7 @@ export default function Insight3({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await getGenresWithMostArtists()
+            const { data, error } = await Repository.getGenresWithMostArtists()
             let genres = []
             let noOfArtists = []
             if (data != null) {
