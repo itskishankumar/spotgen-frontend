@@ -1,98 +1,86 @@
-import { useState } from 'react'
+import { useState, useCallback, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import debounce from 'lodash/debounce'
 import Repository from '../../core/repository'
 import ArtistCard from '../../components/artist_card'
 import TrackCard from '../../components/track_card'
 import AlbumCard from '../../components/album_card'
-import *  as CONSTANTS from '../../utils/constants'
 import LoadingSpinner from '../../components/loading_spinner'
 import getErrorMessage from '../../utils/helper'
 
 export default function SearchPage() {
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const [response, setResponse] = useState(
-    {
-      artistsData: [],
-      tracksData: [],
-      albumData: [],
-      error: null,
-      loading: false,
-    })
+  // Debounced input handler using useCallback + lodash.debounce
+  const debouncedSetSearchTerm = useCallback(
+    debounce((value) => setSearchTerm(value), 500),
+    []
+  )
 
-  let timer
-  async function handleSearch(searchTerm) {
-    // timer to ensure that the search happens only .5 second after last keystroke, and no search happens in between
-    clearTimeout(timer)
-    timer = setTimeout(async () => {
-      setResponse(
-        {
-          artistsData: [],
-          tracksData: [],
-          albumData: [],
-          error: null,
-          loading: true,
-        })
-      let dataa = []
-      let errorr = CONSTANTS.NO_ERROR
-      if (searchTerm) {
-        const { data, error } = await Repository.searchInDb(searchTerm)
-        if (data != null) {
-          dataa = data
-        }
-        errorr = error
-      }
-      setResponse({
-        artistsData: dataa.artistsData,
-        tracksData: dataa.tracksData,
-        albumData: dataa.albumData,
-        error: errorr,
-        loading: false,
-      })
-    }, 500)
-  }
+  useEffect(() => {
+    return () => {
+      debouncedSetSearchTerm.cancel()
+    }
+  }, [debouncedSetSearchTerm])
+
+  const {
+    data,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ['search', searchTerm],
+    queryFn: () => Repository.searchInDb(searchTerm),
+    enabled: !!searchTerm,
+    staleTime: 0,
+  })
 
   return (
     <div className='pb-10'>
-      <input className="h-15 w-96 py-5 px-6 rounded-full text-xl font-bold" type="text" placeholder='Artists, Tracks or Albums' onChange={searchTerm => handleSearch(searchTerm.target.value)}></input>
+      <input
+        className="h-15 w-96 py-5 px-6 rounded-full text-xl font-bold"
+        type="text"
+        placeholder='Artists, Tracks or Albums'
+        onChange={e => debouncedSetSearchTerm(e.target.value)}
+      />
       {
-        response.loading
+        isLoading
           ?
           <LoadingSpinner />
           :
-          response.error != null
+          error
             ?
             <div className="mt-8">
-              <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(response.error)}</p>
+              <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(error.message)}</p>
             </div>
             :
-            <div>
-              <div className="mt-8">
-                {response.artistsData.length != 0 ? <p className='text-xl text-white font-bold mb-4'>Artists</p> : <></>}
-                <div className='flex flex-row overflow-x-auto pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
-                  {response.artistsData.map((data) => {
-                    return <ArtistCard artist={data} key={data.id} />
-                  }
-                  )}
+            data && (
+              <div>
+                <div className="mt-8">
+                  {data.artistsData.length !== 0 ? <p className='text-xl text-white font-bold mb-4'>Artists</p> : <></>}
+                  <div className='flex flex-row overflow-x-auto pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
+                    {data.artistsData.map((artist) => (
+                      <ArtistCard artist={artist} key={artist.id} />
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-4">
+                  {data.tracksData.length !== 0 ? <p className='text-xl text-white font-bold mb-4'>Tracks</p> : <></>}
+                  <div className='flex flex-row overflow-x-auto pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
+                    {data.tracksData.map((track) => (
+                      <TrackCard track={track} key={track.id} />
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-4">
+                  {data.albumData.length !== 0 ? <p className='text-xl text-white font-bold mb-4'>Albums</p> : <></>}
+                  <div className='flex flex-row overflow-x-auto gap-4 pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
+                    {data.albumData.map((album) => (
+                      <AlbumCard album={album} key={album.id} />
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="mt-4">
-                {response.tracksData.length != 0 ? <p className='text-xl text-white font-bold mb-4'>Tracks</p> : <></>}
-                <div className='flex flex-row overflow-x-auto pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
-                  {response.tracksData.map((data) => {
-                    return <TrackCard track={data} key={data.id} />
-                  }
-                  )}
-                </div>
-              </div>
-              <div className="mt-4">
-                {response.albumData.length != 0 ? <p className='text-xl text-white font-bold mb-4'>Albums</p> : <></>}
-                <div className='flex flex-row overflow-x-auto gap-4 pb-10 scrollbar scrollbar-thumb-blue-700 scrollbar-track-gray-200'>
-                  {response.albumData.map((data) => {
-                    return <AlbumCard album={data} key={data.id} />
-                  }
-                  )}
-                </div>
-              </div>
-            </div>
+            )
       }
     </div>
   )

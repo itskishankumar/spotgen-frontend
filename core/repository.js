@@ -11,35 +11,30 @@ class Repository {
   async searchInDb(searchTerm) {
     // if search term contains only spaces
     if (!searchTerm.replace(/\s/g, '').length) {
-      return { data: null, error: CONSTANTS.INVALID_SEARCH_INPUT_ERROR }
+      throw new Error(CONSTANTS.INVALID_SEARCH_INPUT_ERROR )
     }
-    const { data, error } = await NETWORK_HELPER.GET(CONSTANTS.searchUrl + encodeURIComponent(searchTerm))
-    if (error != null) {
-      return { data: null, error: error }
-    } else if (data == [] || data == null || data == undefined || data.length == 0) {
-      return { data: null, error: CONSTANTS.SEARCH_RETURNED_EMPTY_ERROR }
-    } else {
-      const artistsData = []
-      const tracksData = []
-      const albumData = []
-      data.forEach(dat => {
-        if (dat.type == 'artist') {
-          artistsData.push(dat)
-        }
-        if (dat.type == 'track') {
-          tracksData.push(dat)
-        }
-        if (dat.type == 'album') {
-          albumData.push(dat)
-        }
-      })
-      return {
-        data: {
-          artistsData: artistsData,
-          tracksData: tracksData,
-          albumData: albumData,
-        }, error: null,
+    const data = await NETWORK_HELPER.GET(CONSTANTS.searchUrl + encodeURIComponent(searchTerm))
+    if (!data || data.length === 0) {
+      throw new Error(CONSTANTS.SEARCH_RETURNED_EMPTY_ERROR)
+    }
+    const artistsData = []
+    const tracksData = []
+    const albumData = []
+    data.forEach(dat => {
+      if (dat.type == 'artist') {
+        artistsData.push(dat)
       }
+      if (dat.type == 'track') {
+        tracksData.push(dat)
+      }
+      if (dat.type == 'album') {
+        albumData.push(dat)
+      }
+    })
+    return {
+      artistsData: artistsData,
+      tracksData: tracksData,
+      albumData: albumData,
     }
   }
 
