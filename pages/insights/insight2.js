@@ -5,6 +5,7 @@ import *  as CONSTANTS from '../../utils/constants'
 import Router from 'next/router'
 import LoadingSpinner from '../../components/loading_spinner'
 import getErrorMessage from '../../utils/helper'
+import { getArtistLongestReleaseSpans } from '../../core/repository'
 
 const ChartWrapper = dynamic(
     () => import('../../components/chart_wrapper'),
@@ -121,7 +122,7 @@ export default function Insight2({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await Repository.getArtistLongestReleaseSpans()
+            const { data, error } = await getArtistLongestReleaseSpans()
             let artistsNames = []
             let artistsData = []
             let idList = []

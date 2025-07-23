@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
-import Repository from '../../core/repository'
+import { getAlbumData } from '../../core/repository'
 import Link from 'next/link'
 import *  as CONSTANTS from '../../utils/constants'
 import TrackCard from '../../components/track_card'
@@ -17,7 +17,7 @@ export default function AlbumPage() {
         isLoading,
     } = useQuery({
         queryKey: ['album', id],
-        queryFn: () => Repository.getAlbumData(id),
+        queryFn: () => getAlbumData(id),
         enabled: !!id,
         staleTime: Infinity
     })

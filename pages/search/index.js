@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
-import Repository from '../../core/repository'
+import { searchInDb } from '../../core/repository'
 import ArtistCard from '../../components/artist_card'
 import TrackCard from '../../components/track_card'
 import AlbumCard from '../../components/album_card'
@@ -29,7 +29,7 @@ export default function SearchPage() {
     isLoading,
   } = useQuery({
     queryKey: ['search', searchTerm],
-    queryFn: () => Repository.searchInDb(searchTerm),
+    queryFn: () => searchInDb(searchTerm),
     enabled: !!searchTerm,
     staleTime: 0,
   })

@@ -6,6 +6,7 @@ import LoadingSpinner from '../../components/loading_spinner'
 import getErrorMessage from '../../utils/helper'
 import { useRef } from 'react';
 import { Line } from 'react-chartjs-2'
+import { getAudioTrendsOverTimeUrl } from '../../core/repository'
 
 
 const ChartWrapper = dynamic(
@@ -90,7 +91,7 @@ export default function Insight1({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await Repository.getAudioTrendsOverTimeUrl()
+            const { data, error } = await getAudioTrendsOverTimeUrl()
             let acousticnessValues = []
             let danceabilityValues = []
             let speechinessValues = []

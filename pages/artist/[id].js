@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { useQuery } from '@tanstack/react-query'
-import Repository from '../../core/repository'
+import { getArtistData } from '../../core/repository'
 import AlbumCard from '../../components/album_card'
 import LoadingSpinner from '../../components/loading_spinner'
 import *  as CONSTANTS from '../../utils/constants'
@@ -16,7 +16,7 @@ export default function ArtistPage() {
         isLoading,
     } = useQuery({
         queryKey: ['artist', id],
-        queryFn: () => Repository.getArtistData(id),
+        queryFn: () => getArtistData(id),
         enabled: !!id,
         staleTime: Infinity
     })

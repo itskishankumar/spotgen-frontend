@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import LoadingSpinner from '../../components/loading_spinner'
 import getErrorMessage from '../../utils/helper'
+import { getTracksPopularityInsight } from '../../core/repository'
 
 const ChartWrapper = dynamic(
     () => import('../../components/chart_wrapper'),
@@ -89,7 +90,7 @@ export default function Insight5({ isDynamic = true }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const { data, error } = await Repository.getTracksPopularityInsight()
+            const { data, error } = await getTracksPopularityInsight()
             let years = []
             let artist_popularity = []
             let deviations_from_avg = []
