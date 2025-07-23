@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import Repository from '../../core/repository'
+import React from 'react'
+import { useQuery } from '@tanstack/react-query'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
 import Router from 'next/router'
@@ -12,21 +12,7 @@ const ChartWrapper = dynamic(
     { ssr: false }
 )
 
-// top 10 artists w longest gap between album releases
 export default function Insight2({ isDynamic = true }) {
-
-    const [response, setResponse] = useState({
-        chartData: {
-            labels: [],
-            datasets: [{
-                label: '',
-                data: [],
-            }]
-        },
-        error: null,
-        loading: true,
-    })
-
     const staticChartOptions = {
         maintainAspectRatio: false,
         indexAxis: 'y',
@@ -50,12 +36,13 @@ export default function Insight2({ isDynamic = true }) {
         maintainAspectRatio: false,
         responsive: true,
         indexAxis: 'y',
-        onClick: (_, element) => {
-            if (element.length > 0) {
+        onClick: (_, element, chart) => {
+            if (element.length > 0 && chart) {
                 var ind = element[0].index;
+                const idList = chart.data.datasets[0].idList;
                 Router.push({
                     pathname: '/artist/[id]',
-                    query: { id: chartData.datasets[0].idList[ind] },
+                    query: { id: idList[ind] },
                 })
             }
         },
@@ -120,57 +107,53 @@ export default function Insight2({ isDynamic = true }) {
         },
     }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const { data, error } = await getArtistLongestReleaseSpans()
+    const { data, error, isLoading } = useQuery({
+        queryKey: ['artistLongestReleaseSpans'],
+        queryFn: getArtistLongestReleaseSpans,
+        staleTime: Infinity,
+        select: (data) => {
             let artistsNames = []
             let artistsData = []
             let idList = []
-            if (data != null) {
-                data.forEach(dat => {
-                    artistsNames.push(dat.artist_name)
-                    artistsData.push([dat.release_first, dat.release_last])
-                    idList.push(dat.artist_id)
-                })
-            }
-            setResponse({
-                chartData: {
-                    labels: artistsNames,
-                    datasets: [{
+            data?.forEach(dat => {
+                artistsNames.push(dat.artist_name)
+                artistsData.push([dat.release_first, dat.release_last])
+                idList.push(dat.artist_id)
+            })
+            return {
+                labels: artistsNames,
+                datasets: [
+                    {
                         label: 'Longest gap b/w album releases',
                         data: artistsData,
                         idList: idList,
                         backgroundColor: ['#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600'],
                         borderColor: 'blue',
                         fill: true,
-                    }]
-                },
-                error: error,
-                loading: false,
-            })
+                    }
+                ]
+            }
         }
-        fetchData()
-    }, [])
+    })
+
+    if (isLoading) {
+        return <LoadingSpinner />
+    }
+    if (error) {
+        return (
+            <div>
+                <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(error)}</p>
+            </div>
+        )
+    }
 
     return (
         <div className='h-full flex flex-row gap-5'>
-            {
-                response.loading
-                    ?
-                    <LoadingSpinner />
-                    :
-                    response.error != null
-                        ?
-                        <div>
-                            <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(response.error)}</p>
-                        </div>
-                        :
-                        isDynamic
-                            ? <ChartWrapper type={CONSTANTS.BAR_CHART} data={response.chartData} chartOptions={dynamicChartOptions} />
-                            : <ChartWrapper type={CONSTANTS.BAR_CHART} data={response.chartData} chartOptions={staticChartOptions} />
+            {isDynamic
+                ? <ChartWrapper type={CONSTANTS.BAR_CHART} data={data} chartOptions={dynamicChartOptions} />
+                : <ChartWrapper type={CONSTANTS.BAR_CHART} data={data} chartOptions={staticChartOptions} />
             }
         </div>
     )
-
 }
 

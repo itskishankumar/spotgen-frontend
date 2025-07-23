@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState,useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getTop10Genres, getPopularArtistsOfGenre } from '../../core/repository'
 import dynamic from 'next/dynamic'
 import *  as CONSTANTS from '../../utils/constants'
@@ -11,23 +12,8 @@ const ChartWrapper = dynamic(
     { ssr: false }
 )
 
-// top 5 artists of each genre
 export default function Insight4({ isDynamic = true }) {
-
-    const [response, setResponse] = useState({
-        chartData: {
-            labels: [],
-            datasets: [{
-                label: '',
-                data: [],
-            }],
-            genreName: '',
-        },
-        error: null,
-        loading: true,
-    })
-
-    const [genreData, setGenreData] = useState([])
+    const [selectedGenre, setSelectedGenre] = useState(null)
 
     const staticChartOptions = {
         maintainAspectRatio: true,
@@ -59,12 +45,13 @@ export default function Insight4({ isDynamic = true }) {
 
     const dynamicChartOptions = {
         maintainAspectRatio: false,
-        onClick: (_, element) => {
-            if (element.length > 0) {
+        onClick: (_, element, chart) => {
+            if (element.length > 0 && chart) {
                 var ind = element[0].index;
+                const idList = chart.data.datasets[0].idList;
                 Router.push({
                     pathname: '/artist/[id]',
-                    query: { id: response.chartData.datasets[0].idList[ind] },
+                    query: { id: idList[ind] },
                 })
             }
         },
@@ -109,40 +96,45 @@ export default function Insight4({ isDynamic = true }) {
         }
     }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const { data, error } = await getTop10Genres()
-            if (error != null) {
-                setResponse({
-                    error: error,
-                })
-            }
-            if (data != null) {
-                setGenreData(data)
-                await fetchGenreArtists(data[0]['genre'])
-            }
-        }
-        fetchData()
-    }, [])
 
-    async function fetchGenreArtists(genreName) {
-        const { data, error } = await getPopularArtistsOfGenre(genreName)
-        let namesList = []
-        let followersList = []
-        let popularityList = []
-        let idList = []
-        if (data != null) {
+    // Fetch genres
+    const { data: genreData, error: genreError, isLoading: genreLoading } = useQuery({
+        queryKey: ['top10Genres'],
+        queryFn: getTop10Genres,
+        staleTime: Infinity,
+    })
+
+    // Set default selected genre after genres are loaded
+    useEffect(() => {
+        if (genreData && !selectedGenre) {
+            setSelectedGenre(genreData[0]?.genre)
+        }
+    }, [genreData, selectedGenre])
+
+    // Fetch artists for selected genre
+    const {
+        data: chartData,
+        error: artistError,
+        isLoading: artistLoading
+    } = useQuery({
+        queryKey: ['popularArtistsOfGenre', selectedGenre],
+        queryFn: () => getPopularArtistsOfGenre(selectedGenre),
+        enabled: !!selectedGenre,
+        staleTime: Infinity,
+        select: (data) => {
+            let namesList = []
+            let followersList = []
+            let popularityList = []
+            let idList = []
             data.forEach(dat => {
                 namesList.push(dat.artist_name)
                 followersList.push(dat.artist_followers)
                 popularityList.push(dat.artist_popularity)
                 idList.push(dat.id)
             })
-        }
-        setResponse({
-            chartData: {
+            return {
                 labels: namesList,
-                genreName: genreName,
+                genreName: selectedGenre,
                 datasets: [
                     {
                         label: 'No of followers',
@@ -153,52 +145,53 @@ export default function Insight4({ isDynamic = true }) {
                         idList: idList,
                     },
                 ],
-            },
-            error: error,
-            loading: false,
-        })
+            }
+        }
+    })
+ 
+    if (genreError) {
+        return (
+            <div>
+                <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(genreError)}</p>
+            </div>
+        )
+    }
+    if (artistError) {
+        return (
+            <div>
+                <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(artistError)}</p>
+            </div>
+        )
     }
 
     return (
         <div className='h-full'>
-            {
-                response.loading
-                    ?
-                    <LoadingSpinner />
-                    :
-                    response.error != null
-                        ?
-                        <div>
-                            <p className='text-xl text-white font-bold mb-4'>{getErrorMessage(response.error)}</p>
-                        </div>
-                        :
-                        isDynamic
-                            ?
-                            < div className='h-full flex flex-row gap-5'>
-                                <ChartWrapper type={CONSTANTS.PIE_CHART} data={response.chartData} chartOptions={dynamicChartOptions} />
-                                <div className='flex-1 h-full flex flex-col justify-start items-center gap-10'>
-                                    <p className='text-3xl font-semibold text-white'> Top 5 Artists of a Genre based on followers</p>
-                                    <div className='grid grid-cols-2 grid-rows-2 gap-5'>
-                                        {
-                                            genreData.map((data) => {
-                                                // eslint-disable-next-line react/jsx-key
-                                                return <div
-                                                    className={
-                                                        response.chartData.genreName === data.genre ?
-                                                            'flex-none flex justify-center items-center h-32 w-52 bg-gradient-to-b from-black-900 to-blue-600 mr-5 rounded-xl p-4 hover:from-black' :
-                                                            'flex-none flex justify-center items-center h-32 w-52 bg-gradient-to-b from-blue-900 to-blue-600 mr-5 rounded-xl p-4 hover:from-black'
-                                                    }
-                                                    onClick={() => fetchGenreArtists(data.genre)}
-                                                >
-                                                    <p className="line-clamp-3 text-l text-white font-semibold">{data.genre}</p>
-                                                </div>
-                                            })
-                                        }
-                                    </div>
+            {isDynamic
+                ?
+                <div className='h-full flex flex-row gap-5'>
+                    {artistLoading ? <div  className="flex-1 flex justify-center items-center"><LoadingSpinner/></div> : <ChartWrapper type={CONSTANTS.PIE_CHART} data={chartData} chartOptions={dynamicChartOptions} />}
+                    {genreLoading ?  <div  className="flex-1 flex justify-center items-center"><LoadingSpinner/></div> : 
+                    <div className='flex-1 h-full flex flex-col justify-start items-center gap-10'>
+                        <p className='text-3xl font-semibold text-white'> Top 5 Artists of a Genre based on followers</p>
+                        <div className='grid grid-cols-2 grid-rows-2 gap-5'>
+                            {genreData && genreData.map((data) => (
+                                <div
+                                    key={data.genre}
+                                    className={
+                                        chartData && chartData.genreName === data.genre ?
+                                            'flex-none flex justify-center items-center h-32 w-52 bg-gradient-to-b from-black-900 to-blue-600 mr-5 rounded-xl p-4 hover:from-black' :
+                                            'flex-none flex justify-center items-center h-32 w-52 bg-gradient-to-b from-blue-900 to-blue-600 mr-5 rounded-xl p-4 hover:from-black'
+                                    }
+                                    onClick={() => setSelectedGenre(data.genre)}
+                                >
+                                    <p className="line-clamp-3 text-l text-white font-semibold">{data.genre}</p>
                                 </div>
-                            </div>
-                            : <ChartWrapper type={CONSTANTS.PIE_CHART} data={response.chartData} chartOptions={staticChartOptions} />
+                            ))}
+                        </div>
+                    </div>}
+                </div>
+                : artistLoading? <LoadingSpinner/> : <ChartWrapper type={CONSTANTS.PIE_CHART} data={chartData} chartOptions={staticChartOptions} />
             }
-        </div >
+        </div>
     )
 }

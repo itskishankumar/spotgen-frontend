@@ -38,7 +38,7 @@ export async function getAlbumData(id) {
   return await NETWORK_HELPER.GET(CONSTANTS.albumDataUrl + id)
 }
 
-export async function getAudioTrendsOverTimeUrl() {
+export async function getAudioTrendsOverTime() {
   return await NETWORK_HELPER.GET(CONSTANTS.audioTrendsOverTimeUrl)
 }
 
