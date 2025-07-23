@@ -9,7 +9,7 @@ import LoadingSpinner from '../../components/loading_spinner'
 import getErrorMessage from '../../utils/helper'
 
 export default function SearchPage() {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState(null)
 
   // Debounced input handler using useCallback + lodash.debounce
   const debouncedSetSearchTerm = useCallback(
@@ -26,12 +26,12 @@ export default function SearchPage() {
   const {
     data,
     error,
-    isLoading,
+    isFetching,
   } = useQuery({
     queryKey: ['search', searchTerm],
     queryFn: () => searchInDb(searchTerm),
     enabled: !!searchTerm,
-    staleTime: 0,
+    staleTime: Infinity,
   })
 
   return (
@@ -43,7 +43,7 @@ export default function SearchPage() {
         onChange={e => debouncedSetSearchTerm(e.target.value)}
       />
       {
-        isLoading
+        isFetching
           ?
           <LoadingSpinner />
           :
